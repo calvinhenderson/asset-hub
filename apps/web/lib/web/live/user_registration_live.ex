@@ -31,6 +31,11 @@ defmodule Web.UserRegistrationLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
+        <.inputs_for :let={profile} field={@form[:profile]}>
+          <.input field={profile[:given_name]} type="text" label="First Name" required />
+          <.input field={profile[:family_name]} type="text" label="Last Name" required />
+        </.inputs_for>
+
         <.input field={@form[:email]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
