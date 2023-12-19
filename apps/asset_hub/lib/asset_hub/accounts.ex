@@ -60,6 +60,19 @@ defmodule AssetHub.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @doc """
+  Ensures that the profile is loaded for the given user.
+
+  ## Examples
+
+      iex> ensure_profile!(%User{})
+      %User{profile: %{}}
+
+      iex> ensure_profile!(%User{}}
+      %User{profile: nil}
+  """
+  def ensure_profile!(user), do: Repo.preload(user, [:profile])
+
   ## User registration
 
   @doc """
