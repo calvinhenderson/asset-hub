@@ -6,6 +6,7 @@ defmodule AssetHub.Assets.Asset do
     field :asset_tag, :string
     field :serial_number, :string
 
+    belongs_to :owner, AssetHub.Users.User
     timestamps()
   end
 
@@ -41,5 +42,16 @@ defmodule AssetHub.Assets.Asset do
     else
       changeset
     end
+  end
+
+  @doc """
+  An asset changeset for changing the owner.
+
+  It requires the provided user to exist (if not nil), otherwise an error is added.
+  """
+  def owner_changeset(asset, attrs) do
+    asset
+    |> cast(attrs, [:owner_id])
+    |> foreign_key_constraint(:owner_id)
   end
 end

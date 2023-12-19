@@ -1,11 +1,14 @@
 defmodule AssetHub.Accounts.User do
   use AssetHub.Schema
   import Ecto.Changeset
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+
+    has_one :profile, {"accounts_profiles", AssetHub.Users.User}, foreign_key: :account_id
 
     timestamps()
   end
