@@ -49,6 +49,21 @@ defmodule AssetHub.AccountsTest do
   end
 
   describe "register_user/1" do
+    test "requires profile to be set" do
+      {:error, changeset} = Accounts.register_user(%{})
+      assert "can't be blank" in errors_on(changeset).profile
+    end
+
+    test "validates profile when given" do
+      profile = %{given_name: "", family_name: ""}
+      {:error, changeset} = Accounts.register_user(%{profile: profile})
+
+      assert %{
+               given_name: ["can't be blank"],
+               family_name: ["can't be blank"]
+             } = errors_on(changeset).profile
+    end
+
     test "requires email and password to be set" do
       {:error, changeset} = Accounts.register_user(%{})
 
@@ -97,7 +112,7 @@ defmodule AssetHub.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:password, :email, :profile]
     end
 
     test "allows fields to be set" do

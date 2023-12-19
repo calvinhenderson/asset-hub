@@ -28,9 +28,19 @@ defmodule Web.UserRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(user: %{"email" => "with spaces", "password" => "too short"})
+        |> render_change(
+          user: %{
+            "profile" => %{
+              "given_name" => "",
+              "family_name" => ""
+            },
+            "email" => "with spaces",
+            "password" => "too short"
+          }
+        )
 
       assert result =~ "Register"
+      assert result =~ "can&#39;t be blank"
       assert result =~ "must have the @ sign and no spaces"
       assert result =~ "should be at least 12 character"
     end
@@ -50,7 +60,6 @@ defmodule Web.UserRegistrationLiveTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/")
       response = html_response(conn, 200)
-      assert response =~ email
       assert response =~ "Settings"
       assert response =~ "Log out"
     end

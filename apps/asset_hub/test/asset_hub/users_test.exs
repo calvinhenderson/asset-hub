@@ -64,7 +64,7 @@ defmodule AssetHub.UsersTest do
   end
 
   defp user_fixture(attrs \\ %{}) do
-    {:ok, user} = 
+    {:ok, user} =
       attrs
       |> Enum.into(%{given_name: "Test", family_name: "#{System.unique_integer()}"})
       |> Users.register_user()

@@ -4,11 +4,16 @@ defmodule AssetHub.AccountsFixtures do
   entities via the `AssetHub.Accounts` context.
   """
 
+  def unique_user_name, do: "User #{System.unique_integer()}"
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
+      profile: %{
+        given_name: unique_user_name(),
+        family_name: "Test"
+      },
       email: unique_user_email(),
       password: valid_user_password()
     })

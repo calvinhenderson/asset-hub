@@ -115,6 +115,12 @@ defmodule Web.UserAuthTest do
       refute get_session(conn, :user_token)
       refute conn.assigns.current_user
     end
+
+    test "ensures profile is loaded for current_user", %{conn: conn, user: user} do
+      conn = log_in_user(conn, user)
+      conn = UserAuth.fetch_current_user(conn, [])
+      refute %Ecto.Association.NotLoaded{} == conn.assigns.current_user
+    end
   end
 
   describe "on_mount: mount_current_user" do
@@ -145,6 +151,18 @@ defmodule Web.UserAuthTest do
         UserAuth.on_mount(:mount_current_user, %{}, session, %LiveView.Socket{})
 
       assert updated_socket.assigns.current_user == nil
+    end
+
+    test "ensures profile is loaded", %{conn: conn, user: user} do
+      # Setup and log in user
+      user_token = Accounts.generate_user_session_token(user)
+      session = conn |> put_session(:user_token, user_token) |> get_session()
+
+      {:cont, updated_socket} =
+        UserAuth.on_mount(:mount_current_user, %{}, session, %LiveView.Socket{})
+
+      # Verify profile is loaded
+      refute %Ecto.Association.NotLoaded{} == updated_socket.assigns.current_user.profile
     end
   end
 

@@ -90,6 +90,7 @@ defmodule AssetHub.AssetsTest do
 
     test "raises if user does not exist", %{asset: asset} do
       user_id = "11111111-1111-1111-1111-111111111111"
+
       assert_raise Ecto.NoResultsError, fn ->
         Assets.assign_owner(asset, user_id)
       end
@@ -97,8 +98,9 @@ defmodule AssetHub.AssetsTest do
   end
 
   defp unique_asset_tag, do: System.unique_integer() |> to_string()
+
   defp asset_fixture(attrs \\ %{}) do
-    {:ok, asset} = 
+    {:ok, asset} =
       attrs
       |> Enum.into(%{asset_tag: unique_asset_tag()})
       |> Assets.register_asset()
@@ -110,6 +112,7 @@ defmodule AssetHub.AssetsTest do
     {:ok, user} =
       %{given_name: "Test", family_name: "User"}
       |> AssetHub.Users.register_user()
+
     user
   end
 end

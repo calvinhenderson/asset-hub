@@ -176,6 +176,10 @@ defmodule Web.UserAuth do
     Phoenix.Component.assign_new(socket, :current_user, fn ->
       if user_token = session["user_token"] do
         Accounts.get_user_by_session_token(user_token)
+        |> case do
+          user when is_map(user) -> Accounts.ensure_profile!(user)
+          nil -> nil
+        end
       end
     end)
   end
