@@ -13,9 +13,8 @@ defmodule AssetHub.Repo.Migrations.CreateUsersProfilesTables do
 
     ## Join Accounts.User to Users.User
 
-    create table(:accounts_profiles, primary_key: false) do
-      add :account_id, references(:users, type: :binary_id), primary_key: true
-      add :profile_id, references(:users_profiles, type: :binary_id), primary_key: true
+    alter table(:users) do
+      add :profile_id, references(:users_profiles, type: :binary_id, on_delete: :restrict)
     end
 
     ## Add owner field to assets

@@ -7,7 +7,7 @@ defmodule AssetHub.Users.User do
     field :family_name, :string
 
     has_many :assets, AssetHub.Assets.Asset, foreign_key: :owner_id
-    has_one :account, {"users_to_users_profiles", AssetHub.Accounts.User}, foreign_key: :profile_id
+    has_one :account, AssetHub.Accounts.User, foreign_key: :profile_id
 
     timestamps()
   end

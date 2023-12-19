@@ -8,7 +8,7 @@ defmodule AssetHub.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
-    has_one :profile, {"accounts_profiles", AssetHub.Users.User}, foreign_key: :account_id
+    belongs_to :profile, AssetHub.Users.User
 
     timestamps()
   end
@@ -39,6 +39,7 @@ defmodule AssetHub.Accounts.User do
   def registration_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email, :password])
+    |> cast_assoc(:profile, required: true, with: &AssetHub.Users.change_user_registration/2)
     |> validate_email(opts)
     |> validate_password(opts)
   end
