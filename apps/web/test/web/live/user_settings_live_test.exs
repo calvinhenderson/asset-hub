@@ -12,6 +12,7 @@ defmodule Web.UserSettingsLiveTest do
         |> log_in_user(user_fixture())
         |> live(~p"/users/settings")
 
+      assert html =~ "Update Profile"
       assert html =~ "Change Email"
       assert html =~ "Change Password"
     end
@@ -22,6 +23,63 @@ defmodule Web.UserSettingsLiveTest do
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log_in"
       assert %{"error" => "You must log in to access this page."} = flash
+    end
+  end
+
+  describe "update profile form" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      %{conn: log_in_user(conn, user), user: user}
+    end
+
+    test "updates the profile", %{conn: conn} do
+      new_name = "User #{System.unique_integer()}"
+
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> form("#profile_form", %{
+          "profile" => %{
+            "given_name" => new_name,
+            "family_name" => new_name
+          }
+        })
+        |> render_submit()
+
+      assert result =~ "Your profile has been updated"
+    end
+
+    test "renders errors with invalid data (phx-change)", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> element("#email_form")
+        |> render_change(%{
+          "action" => "update_email",
+          "current_password" => "invalid",
+          "user" => %{"email" => "with spaces"}
+        })
+
+      assert result =~ "Change Email"
+      assert result =~ "must have the @ sign and no spaces"
+    end
+
+    test "renders errors with invalid data (phx-submit)", %{conn: conn, user: user} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> form("#email_form", %{
+          "current_password" => "invalid",
+          "user" => %{"email" => user.email}
+        })
+        |> render_submit()
+
+      assert result =~ "Change Email"
+      assert result =~ "did not change"
+      assert result =~ "is not valid"
     end
   end
 

@@ -50,4 +50,21 @@ defmodule AssetHub.Users do
   def change_user_registration(user, attrs \\ %{}) do
     User.registration_changeset(user, attrs)
   end
+
+  @doc """
+  Updates a user.
+
+  ## Examples
+
+      iex> update_user(user, %{field: value})
+      {:ok, %User{}}
+
+      iex> update_user(user, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_user(user, attrs) do
+    user
+    |> User.registration_changeset(attrs)
+    |> Repo.update()
+  end
 end

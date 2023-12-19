@@ -2,15 +2,32 @@ defmodule Web.UserSettingsLive do
   use Web, :live_view
 
   alias AssetHub.Accounts
+  alias AssetHub.Users
 
   def render(assigns) do
     ~H"""
     <.header class="text-center">
       Account Settings
-      <:subtitle>Manage your account email address and password settings</:subtitle>
+      <:subtitle>Manage your profile and account settings</:subtitle>
     </.header>
 
-    <div class="space-y-12 divide-y">
+    <div>
+      <.header class="mt-12">Profile Settings</.header>
+      <div>
+        <.simple_form
+          for={@profile_form}
+          id="profile_form"
+          phx-submit="update_profile"
+          phx-change="validate_profile"
+        >
+          <.input field={@profile_form[:given_name]} type="text" label="First Name" required />
+          <.input field={@profile_form[:family_name]} type="text" label="Last Name" required />
+          <:actions>
+            <.button phx-disable-with="Changing...">Update Profile</.button>
+          </:actions>
+        </.simple_form>
+      </div>
+      <.header class="mt-12">Account Settings</.header>
       <div>
         <.simple_form
           for={@email_form}
@@ -88,6 +105,7 @@ defmodule Web.UserSettingsLive do
 
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
+    profile_changeset = Users.change_user_registration(user.profile)
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
 
@@ -96,11 +114,43 @@ defmodule Web.UserSettingsLive do
       |> assign(:current_password, nil)
       |> assign(:email_form_current_password, nil)
       |> assign(:current_email, user.email)
+      |> assign(:profile_form, to_form(profile_changeset, as: "profile"))
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
+  end
+
+  def handle_event("validate_profile", params, socket) do
+    %{"profile" => profile_params} = params
+
+    profile_form =
+      socket.assigns.current_user.profile
+      |> Users.change_user_registration(profile_params)
+      |> Map.put(:action, :validate)
+      |> to_form(as: "profile")
+
+    {:noreply, assign(socket, profile_form: profile_form)}
+  end
+
+  def handle_event("update_profile", params, socket) do
+    %{"profile" => profile_params} = params
+    profile = socket.assigns.current_user.profile
+
+    case Users.update_user(profile, profile_params) do
+      {:ok, _updated_profile} ->
+        info = "Your profile has been updated successfully."
+        {:noreply, socket |> put_flash(:info, info)}
+
+      {:error, changeset} ->
+        {:noreply,
+         assign(
+           socket,
+           :profile_form,
+           to_form(Map.put(changeset, :action, :insert), as: "profile")
+         )}
+    end
   end
 
   def handle_event("validate_email", params, socket) do
