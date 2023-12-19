@@ -47,7 +47,7 @@ defmodule AssetHub.Users do
   @doc """
   Returns an asset changeset for tracking registration changes.
   """
-  def change_user_registration(user, attrs) do
+  def change_user_registration(user, attrs \\ %{}) do
     User.registration_changeset(user, attrs)
   end
 end

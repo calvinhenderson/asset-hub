@@ -47,7 +47,7 @@ defmodule AssetHub.Assets do
   @doc """
   Returns an asset changeset for tracking registration changes.
   """
-  def change_asset_registration(asset, attrs) do
+  def change_asset_registration(asset, attrs \\ %{}) do
     Asset.registration_changeset(asset, attrs)
   end
 
@@ -58,15 +58,26 @@ defmodule AssetHub.Assets do
 
   ## Examples
 
-      iex> assign_owner(asset, user)
+      iex> assign_owner(asset, user_id)
       {:ok, %Asset{}}
 
       iex> assign_owner(asset, nil)
       {:ok, %Asset{}}
+
+      iex> assign_owner(asset, bad_user_id)
+      ** (Ecto.NoResultsError)
   """
-  def assign_owner(asset, user) do
+  def assign_owner(asset, user_id) do
+    owner_id =
+      if user_id do
+        %{id: id} = AssetHub.Users.get_user!(user_id)
+        id
+      else
+        nil
+      end
+
     asset
-    |> Asset.owner_changeset(%{owner_id: user.id})
+    |> Asset.owner_changeset(%{owner_id: owner_id})
     |> Repo.update()
   end
 end
